@@ -30,6 +30,9 @@ Mappings:
       CIDR: 10.0.1.0/24
 
 Resources:
+  ############################################################
+  # VPC
+  ############################################################
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -47,6 +50,9 @@ Resources:
         - Key: Name
           Value: !Ref VPCName
 
+  ############################################################
+  # Public Subnet + Resources (IGW and NGW) + Route table
+  ############################################################
   PublicSubnet:
     Type: AWS::EC2::Subnet
     Properties:
@@ -74,30 +80,6 @@ Resources:
                 - 0
                 - !GetAZs
 
-  PrivateSubnet:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      AvailabilityZone: !Select
-        - 0
-        - !GetAZs
-      CidrBlock: !FindInMap
-        - SubnetConfig
-        - Private
-        - CIDR
-      Tags:
-        - Key: Application
-          Value: !Ref AWS::StackName
-        - Key: Network
-          Value: Private
-        - Key: Name
-          Value: !Join
-            - ""
-            - - !Ref VPCName
-              - "-private-"
-              - !Select
-                - 0
-                - !GetAZs
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -159,7 +141,36 @@ Resources:
       AllocationId: !GetAtt ElasticIP.AllocationId
       SubnetId: !Ref PublicSubnet
 
-  PrivateRouteTable:
+  ############################################################
+  # Private Subnet0 + Route table
+  ############################################################
+
+  PrivateSubnet0:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select
+        - 0
+        - !GetAZs
+      CidrBlock: !FindInMap
+        - SubnetConfig
+        - Private
+        - CIDR
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Private
+        - Key: Name
+          Value: !Join
+            - ""
+            - - !Ref VPCName
+              - "-private-"
+              - !Select
+                - 0
+                - !GetAZs
+
+  PrivateRouteTable0:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
@@ -170,18 +181,73 @@ Resources:
             - - !Ref VPCName
               - "-private-route-table"
 
-  PrivateRouteToInternet:
+  PrivateRouteToInternet0:
     Type: AWS::EC2::Route
     Properties:
-      RouteTableId: !Ref PrivateRouteTable
+      RouteTableId: !Ref PrivateRouteTable0
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NATGateway
 
-  PrivateSubnetRouteTableAssociation:
+  PrivateSubnetRouteTableAssociation0:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref PrivateSubnet
-      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet0
+      RouteTableId: !Ref PrivateRouteTable0
+
+  ############################################################
+  # Private Subnet1 + Route table
+  ############################################################
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select
+        - 1
+        - !GetAZs
+      CidrBlock: !FindInMap
+        - SubnetConfig
+        - Private
+        - CIDR
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Private
+        - Key: Name
+          Value: !Join
+            - ""
+            - - !Ref VPCName
+              - "-private-"
+              - !Select
+                - 1
+                - !GetAZs
+
+  PrivateRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name
+          Value: !Join
+            - ""
+            - - !Ref VPCName
+              - "-private-route-table"
+
+  PrivateRouteToInternet1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGateway
+
+  PrivateSubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PrivateSubnet1
+      RouteTableId: !Ref PrivateRouteTable1
+
+
 
 Outputs:
   VPCId:
@@ -196,9 +262,9 @@ Outputs:
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-PublicSubnet
 
-  PrivateSubnet:
+  PrivateSubnet0:
     Description: SubnetId of private subnet
-    Value: !Ref PrivateSubnet
+    Value: !Ref PrivateSubnet0
     Export:
-      Name: !Sub ${AWS::Region}-${AWS::StackName}-PrivateSubnet
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-PrivateSubnet0
 
