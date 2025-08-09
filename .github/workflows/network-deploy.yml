@@ -28,4 +28,6 @@ jobs:
             --stack-name networkStack \
             --template-file network.yml \
             --parameter-overrides $PARAMS
+            aws cloudformation describe-stack-events --stack-name networkStack
+
       
