@@ -23,8 +23,9 @@ jobs:
 
       - name: Deploy CloudFormation Stack
         run: |
+            PARAMS=$(jq -r '.[] | "\(.ParameterKey)=\(.ParameterValue)"' network-parameters.json | xargs)
             aws cloudformation deploy \
             --stack-name networkStack \
             --template-file network.yml \
-            --parameters file://network-parameters.json
+            --parameter-overrides $PARAMS
       
