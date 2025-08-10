@@ -26,7 +26,9 @@ Mappings:
       CIDR: 10.0.0.0/16
     Public:
       CIDR: 10.0.0.0/24
-    Private:
+    Private0:
+      CIDR: 10.0.1.0/24
+    Private1:
       CIDR: 10.0.1.0/24
 
 Resources:
@@ -154,7 +156,7 @@ Resources:
         - !GetAZs
       CidrBlock: !FindInMap
         - SubnetConfig
-        - Private
+        - Private0
         - CIDR
       Tags:
         - Key: Application
@@ -207,7 +209,7 @@ Resources:
         - !GetAZs
       CidrBlock: !FindInMap
         - SubnetConfig
-        - Private
+        - Private1
         - CIDR
       Tags:
         - Key: Application
