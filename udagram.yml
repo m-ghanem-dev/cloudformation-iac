@@ -29,7 +29,7 @@ Resources:
     Properties:
       GroupDescription: Security group for Application Load Balancer
       VpcId: 
-          Fn::ImportValue: !Sub "${AWS::Region}-${AWS::StackName}-VPC"
+          Fn::ImportValue: !Sub "${AWS::Region}-${NetworkStackName}-VPC"
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -41,7 +41,7 @@ Resources:
     Properties:
       GroupDescription: Security group for App Server instances
       VpcId: 
-          Fn::ImportValue: !Sub "${AWS::Region}-${AWS::StackName}-VPC"
+          Fn::ImportValue: !Sub "${AWS::Region}-${NetworkStackName}-VPC"
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -72,7 +72,7 @@ Resources:
       Port: 80
       Protocol: HTTP
       VpcId: 
-          Fn::ImportValue: !Sub "${AWS::Region}-${AWS::StackName}-VPC"
+          Fn::ImportValue: !Sub "${AWS::Region}-${NetworkStackName}-VPC"
       HealthCheckPath: /
       Matcher:
         HttpCode: 200
