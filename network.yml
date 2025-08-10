@@ -1,5 +1,5 @@
 ##########################################################################################################
-# A VPC with a public and private subnet.
+# A VPC with 2 public and  2 private subnets.
 # A nat-gateway in the public subnet
 # An IGW in the public subnet
 # One Route tables per subnet to control the flow of outbound traffic from its associated subnet
@@ -26,6 +26,8 @@ Mappings:
       CIDR: 10.0.0.0/16
     Public:
       CIDR: 10.0.0.0/24
+    Public1:
+      CIDR: 10.0.1.0/24
     Private0:
       CIDR: 10.0.1.0/24
     Private1:
@@ -142,6 +144,98 @@ Resources:
     Properties:
       AllocationId: !GetAtt ElasticIP.AllocationId
       SubnetId: !Ref PublicSubnet
+
+
+  ############################################################
+  # Public Subnet 1 + Resources (IGW and NGW) + Route table
+  ############################################################
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      # select second  az in region (eg. eu-central-1b)
+      AvailabilityZone: !Select
+        - 1
+        - !GetAZs
+      CidrBlock: !FindInMap
+        - SubnetConfig
+        - Public1
+        - CIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Join
+            - "" # delimiter
+            - - !Ref VPCName
+              - "-public-"
+              - !Select
+                - 1
+                - !GetAZs
+
+
+  InternetGateway1:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Join
+            - ""
+            - - !Ref VPCName
+              - "-IGW"
+
+  GatewayToInternet1:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway1
+
+  PublicRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Join
+            - ""
+            - - !Ref VPCName
+              - "-public-route-table"
+
+  PublicRoute1:
+    Type: AWS::EC2::Route
+    DependsOn: GatewayToInternet1
+    Properties:
+      RouteTableId: !Ref PublicRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway1
+
+  PublicSubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable1
+
+  ElasticIP1:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  NATGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt ElasticIP1.AllocationId
+      SubnetId: !Ref PublicSubnet1
 
   ############################################################
   # Private Subnet0 + Route table
