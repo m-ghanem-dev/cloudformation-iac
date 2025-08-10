@@ -96,6 +96,12 @@ Resources:
       LaunchTemplateData:
         ImageId: !Ref AmiId
         InstanceType: t3.micro
+        BlockDeviceMappings:
+          - DeviceName: /dev/xvdcz
+            Ebs:
+              VolumeSize: 10
+              VolumeType: gp2
+              DeleteOnTermination: true
         SecurityGroupIds:
           - !Ref AppServerSG
         UserData:
