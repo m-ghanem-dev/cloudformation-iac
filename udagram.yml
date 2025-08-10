@@ -28,8 +28,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for Application Load Balancer
-      VpcId: !ImportValue
-              !Sub ${AWS::Region}-${AWS::StackName}-VPC
+      VpcId: !ImportValue ${AWS::Region}-${AWS::StackName}-VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -40,8 +39,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for App Server instances
-      VpcId: !ImportValue
-              !Sub ${AWS::Region}-${AWS::StackName}-VPC
+      VpcId: !ImportValue ${AWS::Region}-${AWS::StackName}-VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -71,8 +69,7 @@ Resources:
       Name: !Sub "${AWS::StackName}-TargetGroup"
       Port: 80
       Protocol: HTTP
-      VpcId: !ImportValue
-              !Sub ${AWS::Region}-${AWS::StackName}-VPC
+      VpcId: !ImportValue ${AWS::Region}-${AWS::StackName}-VPC
       HealthCheckPath: /
       Matcher:
         HttpCode: 200
