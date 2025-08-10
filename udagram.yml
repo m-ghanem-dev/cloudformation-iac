@@ -109,6 +109,7 @@ Resources:
             #!/bin/bash
             apt-get update -y
             apt-get install -y nginx
+            wget https://udagrambucket-kouj31232.s3.eu-central-1.amazonaws.com/index.html -O /var/www/html/index.html
             systemctl start nginx
             systemctl enable nginx
 
