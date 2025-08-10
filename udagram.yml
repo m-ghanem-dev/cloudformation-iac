@@ -134,9 +134,55 @@ Resources:
           Value: !Sub "${AWS::StackName}-AppServer"
           PropagateAtLaunch: true
 
+
+
+
+#################################################################
+# S3 bucket
+#################################################################
+
+  UdagramBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: udagrambucket-8jklfskl3i4
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+
+  BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref UdagramBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action: s3:GetObject
+            Resource: !Sub "${UdagramBucket.Arn}/*"
+
+  PublicAccessBlock:
+    Type: AWS::S3::PublicAccessBlock
+    Properties:
+      Bucket: !Ref UdagramBucket
+      BlockPublicAcls: false
+      BlockPublicPolicy: false
+      IgnorePublicAcls: false
+      RestrictPublicBuckets: false
+
 Outputs:
   LoadBalancerDNSName:
     Description: DNS name of the load balancer
     Value: !GetAtt AppLoadBalancer.DNSName
     Export:
       Name: !Sub "${AWS::Region}-${AWS::StackName}-LoadBalancerDNS"
+  WebsiteURL:
+    Value: !GetAtt UdagramBucket.WebsiteURL
+    Description: "URL of the S3 website"
+
+
+
+
+
+
