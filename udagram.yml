@@ -14,10 +14,6 @@ Parameters:
     Type: String
     Default: networkStack
 
-  VPCId:
-    Description: VPC Id to launch resources in
-    Type: AWS::EC2::VPC::Id
-
   AmiId:
     Description: The Amazon Machine Image ID.
     Type: String
@@ -32,7 +28,8 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for Application Load Balancer
-      VpcId: !Ref VPCId
+      VpcId: !ImportValue
+              !Sub ${AWS::Region}-${AWS::StackName}-VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -43,7 +40,8 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for App Server instances
-      VpcId: !Ref VPCId
+      VpcId: !ImportValue
+              !Sub ${AWS::Region}-${AWS::StackName}-VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -73,7 +71,8 @@ Resources:
       Name: !Sub "${AWS::StackName}-TargetGroup"
       Port: 80
       Protocol: HTTP
-      VpcId: !Ref VPCId
+      VpcId: !ImportValue
+              !Sub ${AWS::Region}-${AWS::StackName}-VPC
       HealthCheckPath: /
       Matcher:
         HttpCode: 200
