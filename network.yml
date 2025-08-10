@@ -147,7 +147,8 @@ Resources:
 
 
   ############################################################
-  # Public Subnet 1 + Resources (IGW and NGW) + Route table
+  # Public Subnet 1 + Resources (NGW) + Route table 
+  # (only one IGW per VPC hence this public subnet has no IGW)
   ############################################################
   PublicSubnet1:
     Type: AWS::EC2::Subnet
@@ -176,27 +177,6 @@ Resources:
                 - 1
                 - !GetAZs
 
-
-  InternetGateway1:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        - Key: Application
-          Value: !Ref AWS::StackName
-        - Key: Network
-          Value: Public
-        - Key: Name
-          Value: !Join
-            - ""
-            - - !Ref VPCName
-              - "-IGW"
-
-  GatewayToInternet1:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      VpcId: !Ref VPC
-      InternetGatewayId: !Ref InternetGateway1
-
   PublicRouteTable1:
     Type: AWS::EC2::RouteTable
     Properties:
@@ -214,7 +194,7 @@ Resources:
 
   PublicRoute1:
     Type: AWS::EC2::Route
-    DependsOn: GatewayToInternet1
+    DependsOn: GatewayToInternet
     Properties:
       RouteTableId: !Ref PublicRouteTable1
       DestinationCidrBlock: 0.0.0.0/0
@@ -231,7 +211,7 @@ Resources:
     Properties:
       Domain: vpc
 
-  NATGateway:
+  NATGateway1:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt ElasticIP1.AllocationId
@@ -335,7 +315,7 @@ Resources:
     Properties:
       RouteTableId: !Ref PrivateRouteTable1
       DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref NATGateway
+      NatGatewayId: !Ref NATGateway1
 
   PrivateSubnetRouteTableAssociation1:
     Type: AWS::EC2::SubnetRouteTableAssociation
