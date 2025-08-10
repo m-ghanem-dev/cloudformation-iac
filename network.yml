@@ -29,9 +29,9 @@ Mappings:
     Public1:
       CIDR: 10.0.1.0/24
     Private0:
-      CIDR: 10.0.1.0/24
-    Private1:
       CIDR: 10.0.2.0/24
+    Private1:
+      CIDR: 10.0.3.0/24
 
 Resources:
   ############################################################
