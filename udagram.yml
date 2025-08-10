@@ -1,18 +1,139 @@
-Description: CD12352 - Infrastructure as Code Project - Udagram
+##########################################################################################################
+# Application CloudFormation Stack
+# - ALB with Listener and Target Group
+# - Launch Template for EC2 configuration
+# - Auto Scaling Group with private subnet placement
+# - Security Groups for ALB and App Servers
+##########################################################################################################
+
+Description: Application CloudFormation Stack
 
 Parameters:
-  # Add your parameters here
+  VPCId:
+    Description: VPC Id to launch resources in
+    Type: AWS::EC2::VPC::Id
+
+  PrivateSubnet0:
+    Description: First private subnet Id
+    Type: AWS::EC2::Subnet::Id
+
+  PrivateSubnet1:
+    Description: Second private subnet Id
+    Type: AWS::EC2::Subnet::Id
+
+  AmiId:
+    Description: The Amazon Machine Image ID.
+    Type: String
+    Default: !Ref AmiId
 
 Resources:
-  # Add your resources here
-  # We include a portion of the LaunchTemplate resource so you can use the UserData.
+
+##########################################################################################################
+# Security Groups
+##########################################################################################################
+  LoadBalancerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for Application Load Balancer
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  AppServerSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for App Server instances
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref LoadBalancerSG
+
+##########################################################################################################
+# Application Load Balancer, Listener, and Target Group
+##########################################################################################################
+  AppLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub "${AWS::StackName}-ALB"
+      Subnets:
+        - !Ref PrivateSubnet0
+        - !Ref PrivateSubnet1
+      SecurityGroups:
+        - !Ref LoadBalancerSG
+      Scheme: internet-facing
+      Type: application
+
+  AppTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: !Sub "${AWS::StackName}-TargetGroup"
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref VPCId
+      HealthCheckPath: /
+      Matcher:
+        HttpCode: 200
+
+  AppListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref AppLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref AppTargetGroup
+
+##########################################################################################################
+# Launch Template
+##########################################################################################################
   WebAppLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
-    Properties: 
+    Properties:
+      LaunchTemplateName: !Sub "${AWS::StackName}-LaunchTemplate"
       LaunchTemplateData:
+        ImageId: !Ref AmiId
+        InstanceType: t3.micro
+        SecurityGroupIds:
+          - !Ref AppServerSG
         UserData:
           Fn::Base64: |
             #!/bin/bash
             apt-get update -y
-            sudo apt-get install nginx -y
-            service nginx start
+            apt-get install -y nginx
+            systemctl start nginx
+            systemctl enable nginx
+
+##########################################################################################################
+# Auto Scaling Group
+##########################################################################################################
+  AppAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref PrivateSubnet0
+        - !Ref PrivateSubnet1
+      LaunchTemplate:
+        LaunchTemplateId: !Ref WebAppLaunchTemplate
+        Version: !GetAtt WebAppLaunchTemplate.LatestVersionNumber
+      MinSize: 2
+      MaxSize: 4
+      DesiredCapacity: 2
+      TargetGroupARNs:
+        - !Ref AppTargetGroup
+      Tags:
+        - Key: Name
+          Value: !Sub "${AWS::StackName}-AppServer"
+          PropagateAtLaunch: true
+
+Outputs:
+  LoadBalancerDNSName:
+    Description: DNS name of the load balancer
+    Value: !GetAtt AppLoadBalancer.DNSName
+    Export:
+      Name: !Sub "${AWS::Region}-${AWS::StackName}-LoadBalancerDNS"

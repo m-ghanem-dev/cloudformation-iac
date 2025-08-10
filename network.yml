@@ -1,7 +1,7 @@
 ##########################################################################################################
 # A VPC with 2 public and  2 private subnets.
-# A nat-gateway in the public subnet
-# An IGW in the public subnet
+# A nat-gateway in the public subnets
+# An IGW in the VPC
 # One Route tables per subnet to control the flow of outbound traffic from its associated subnet
 # Route table associated with private subnet, routes outgoing traffic to nat-gateway (ingoing traffic receievd from example load balancer in the same VPC)
 # Route table associated with public subnet, routes outgoing traffic from subnet to IGW (by definition IGW will forward traffic into public subnet as well)
@@ -334,6 +334,12 @@ Outputs:
   PublicSubnet:
     Description: SubnetId of public subnet
     Value: !Ref PublicSubnet
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-PublicSubnet
+
+  PublicSubnet1:
+    Description: SubnetId of public subnet
+    Value: !Ref PublicSubnet1
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-PublicSubnet
 
