@@ -105,19 +105,13 @@ Resources:
         SecurityGroupIds:
           - !Ref AppServerSG
         UserData:
-          Fn::Base64: !Sub |
+          Fn::Base64: |
             #!/bin/bash
-            set -ex
-            export DEBIAN_FRONTEND=noninteractive
             apt-get update -y
             apt-get install -y nginx
-            rm -f /var/www/html/index.nginx-debian.html
-            until wget -O /var/www/html/index.html https://udagrambucket-kouj31232.s3.eu-central-1.amazonaws.com/index.html; do
-              sleep 5
-            done
-            chown www-data:www-data /var/www/html/index.html
-            chmod 644 /var/www/html/index.html
-            systemctl restart nginx
+            wget https://udagrambucket-kouj31232.s3.eu-central-1.amazonaws.com/index.html -O /var/www/html/index.html
+            wget -P /var/www/html https://udagrambucket-kouj31232.s3.eu-central-1.amazonaws.com/index.html
+            systemctl start nginx
             systemctl enable nginx
 
 
