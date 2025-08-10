@@ -1,7 +1,7 @@
 [
 	{
 		"ParameterKey": "AmiId",
-		"ParameterValue": "ami-04e601abe3e1a910f"
+		"ParameterValue": "ami-0a87a69d69fa289be"
 	},
 	{
 		"ParameterKey": "NetworkStackName",
