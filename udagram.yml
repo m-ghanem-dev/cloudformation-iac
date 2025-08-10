@@ -106,23 +106,26 @@ Resources:
           - !Ref AppServerSG
         UserData:
           Fn::Base64: |
-              #!/bin/bash
-              apt-get update -y
-              apt-get install -y nginx
+          #!/bin/bash
+          set -ex
 
-              # Remove default nginx index page to avoid confusion
-              rm -f /var/www/html/index.nginx-debian.html
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -y
+          apt-get install -y nginx
 
-              # Download your custom index.html directly with correct name
-              wget -O /var/www/html/index.html https://udagrambucket-kouj31232.s3.eu-central-1.amazonaws.com/index.html
+          # Remove default nginx index page
+          rm -f /var/www/html/index.nginx-debian.html
 
-              # Fix permissions so nginx can read it
-              chown www-data:www-data /var/www/html/index.html
-              chmod 644 /var/www/html/index.html
+          # Wait until network is up and file is downloadable
+          until wget -O /var/www/html/index.html https://udagrambucket-kouj31232.s3.eu-central-1.amazonaws.com/index.html; do
+            sleep 5
+          done
 
-              # Restart nginx to pick up the new page
-              systemctl restart nginx
-              systemctl enable nginx
+          chown www-data:www-data /var/www/html/index.html
+          chmod 644 /var/www/html/index.html
+
+          systemctl restart nginx
+          systemctl enable nginx
 
 
   ##########################################################################################################
