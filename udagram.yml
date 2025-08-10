@@ -28,7 +28,8 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for Application Load Balancer
-      VpcId: !ImportValue ${AWS::Region}-${AWS::StackName}-VPC
+      VpcId: 
+          Fn::ImportValue: !Sub "${AWS::Region}-${AWS::StackName}-VPC"
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -39,7 +40,8 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Security group for App Server instances
-      VpcId: !ImportValue ${AWS::Region}-${AWS::StackName}-VPC
+      VpcId: 
+          Fn::ImportValue: !Sub "${AWS::Region}-${AWS::StackName}-VPC"
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -69,7 +71,8 @@ Resources:
       Name: !Sub "${AWS::StackName}-TargetGroup"
       Port: 80
       Protocol: HTTP
-      VpcId: !ImportValue ${AWS::Region}-${AWS::StackName}-VPC
+      VpcId: 
+          Fn::ImportValue: !Sub "${AWS::Region}-${AWS::StackName}-VPC"
       HealthCheckPath: /
       Matcher:
         HttpCode: 200
@@ -111,10 +114,8 @@ Resources:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       VPCZoneIdentifier:
-        - !ImportValue
-          Fn::Sub: "${AWS::Region}-${NetworkStackName}-PrivateSubnet0"
-        - !ImportValue
-          Fn::Sub: "${AWS::Region}-${NetworkStackName}-PrivateSubnet1"
+        - Fn::ImportValue: !Sub "${AWS::Region}-${NetworkStackName}-PrivateSubnet0"
+        - Fn::ImportValue: !Sub "${AWS::Region}-${NetworkStackName}-PrivateSubnet1"
       LaunchTemplate:
         LaunchTemplateId: !Ref WebAppLaunchTemplate
         Version: !GetAtt WebAppLaunchTemplate.LatestVersionNumber
