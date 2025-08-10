@@ -144,11 +144,16 @@ Resources:
   UdagramBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: udagrambucket-8jklfskl3i4
+      BucketName: udagrambucket-kouj31232
       AccessControl: PublicRead
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
 
   BucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -161,15 +166,6 @@ Resources:
             Principal: "*"
             Action: s3:GetObject
             Resource: !Sub "${UdagramBucket.Arn}/*"
-
-  PublicAccessBlock:
-    Type: AWS::S3::PublicAccessBlock
-    Properties:
-      Bucket: !Ref UdagramBucket
-      BlockPublicAcls: false
-      BlockPublicPolicy: false
-      IgnorePublicAcls: false
-      RestrictPublicBuckets: false
 
 Outputs:
   LoadBalancerDNSName:
