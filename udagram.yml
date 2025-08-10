@@ -56,8 +56,8 @@ Resources:
     Properties:
       Name: !Sub "${AWS::StackName}-ALB"
       Subnets:
-        - Fn::ImportValue: !Sub "${AWS::Region}-${NetworkStackName}-PrivateSubnet0"
-        - Fn::ImportValue: !Sub "${AWS::Region}-${NetworkStackName}-PrivateSubnet1"
+        - Fn::ImportValue: !Sub "${AWS::Region}-${NetworkStackName}-PublicSubnet"
+        - Fn::ImportValue: !Sub "${AWS::Region}-${NetworkStackName}-PublicSubnet1"
       SecurityGroups:
         - !Ref LoadBalancerSG
       Scheme: internet-facing
