@@ -9,6 +9,11 @@
 Description: Application CloudFormation Stack
 
 Parameters:
+  NetworkStackName:
+    Description: Network stack name
+    Type: String
+    Default: networkStack
+
   VPCId:
     Description: VPC Id to launch resources in
     Type: AWS::EC2::VPC::Id
@@ -54,9 +59,9 @@ Resources:
       Name: !Sub "${AWS::StackName}-ALB"
       Subnets:
         - !ImportValue
-          Fn::Sub: "${AWS::Region}-MyNetworkStack-PrivateSubnet0"
+          Fn::Sub: "${AWS::Region}-${NetworkStackName}-PrivateSubnet0"
         - !ImportValue
-          Fn::Sub: "${AWS::Region}-MyNetworkStack-PrivateSubnet1"
+          Fn::Sub: "${AWS::Region}-${NetworkStackName}-PrivateSubnet1"
       SecurityGroups:
         - !Ref LoadBalancerSG
       Scheme: internet-facing
@@ -111,9 +116,9 @@ Resources:
     Properties:
       VPCZoneIdentifier:
         - !ImportValue
-          Fn::Sub: "${AWS::Region}-MyNetworkStack-PrivateSubnet0"
+          Fn::Sub: "${AWS::Region}-${NetworkStackName}-PrivateSubnet0"
         - !ImportValue
-          Fn::Sub: "${AWS::Region}-MyNetworkStack-PrivateSubnet1"
+          Fn::Sub: "${AWS::Region}-${NetworkStackName}-PrivateSubnet1"
       LaunchTemplate:
         LaunchTemplateId: !Ref WebAppLaunchTemplate
         Version: !GetAtt WebAppLaunchTemplate.LatestVersionNumber
