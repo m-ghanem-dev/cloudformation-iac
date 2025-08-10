@@ -145,7 +145,6 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: udagrambucket-kouj31232
-      AccessControl: PublicRead
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
@@ -154,6 +153,9 @@ Resources:
         BlockPublicPolicy: false
         IgnorePublicAcls: false
         RestrictPublicBuckets: false
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
 
   BucketPolicy:
     Type: AWS::S3::BucketPolicy
