@@ -23,16 +23,9 @@ jobs:
 
       - name: Deploy CloudFormation Stack
         run: |
-          set +e
           PARAMS=$(jq -r '.[] | "\(.ParameterKey)=\(.ParameterValue)"' network-parameters.json | xargs)
           aws cloudformation deploy \
             --stack-name networkStack \
             --template-file network.yml \
-            --parameter-overrides $PARAMS \
-          DEPLOY_EXIT_CODE=$?
-          if [ $DEPLOY_EXIT_CODE -ne 0 ]; then
-            echo "CloudFormation deploy failed. Fetching recent stack events..."
-            aws cloudformation describe-stack-events --stack-name networkStack
-          fi
-          exit $DEPLOY_EXIT_CODE
+            --parameter-overrides $PARAMS
       
