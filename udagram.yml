@@ -13,18 +13,6 @@ Parameters:
     Description: VPC Id to launch resources in
     Type: AWS::EC2::VPC::Id
 
-  PrivateSubnet0:
-    Type: AWS::EC2::Subnet::Id
-    Default: !ImportValue
-      Fn::Sub: "${AWS::Region}-MyNetworkStack-PrivateSubnet0"
-    Description: Private Subnet 0 ID imported from network stack
-
-  PrivateSubnet1:
-    Type: AWS::EC2::Subnet::Id
-    Default: !ImportValue
-      Fn::Sub: "${AWS::Region}-MyNetworkStack-PrivateSubnet1"
-    Description: Private Subnet 1 ID imported from network stack
-
   AmiId:
     Description: The Amazon Machine Image ID.
     Type: String
@@ -32,9 +20,9 @@ Parameters:
 
 Resources:
 
-##########################################################################################################
-# Security Groups
-##########################################################################################################
+  ##########################################################################################################
+  # Security Groups
+  ##########################################################################################################
   LoadBalancerSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -57,16 +45,18 @@ Resources:
           ToPort: 80
           SourceSecurityGroupId: !Ref LoadBalancerSG
 
-##########################################################################################################
-# Application Load Balancer, Listener, and Target Group
-##########################################################################################################
+  ##########################################################################################################
+  # Application Load Balancer, Listener, and Target Group
+  ##########################################################################################################
   AppLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       Name: !Sub "${AWS::StackName}-ALB"
       Subnets:
-        - !Ref PrivateSubnet0
-        - !Ref PrivateSubnet1
+        - !ImportValue
+          Fn::Sub: "${AWS::Region}-MyNetworkStack-PrivateSubnet0"
+        - !ImportValue
+          Fn::Sub: "${AWS::Region}-MyNetworkStack-PrivateSubnet1"
       SecurityGroups:
         - !Ref LoadBalancerSG
       Scheme: internet-facing
@@ -93,9 +83,9 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref AppTargetGroup
 
-##########################################################################################################
-# Launch Template
-##########################################################################################################
+  ##########################################################################################################
+  # Launch Template
+  ##########################################################################################################
   WebAppLaunchTemplate:
     Type: AWS::EC2::LaunchTemplate
     Properties:
@@ -113,15 +103,17 @@ Resources:
             systemctl start nginx
             systemctl enable nginx
 
-##########################################################################################################
-# Auto Scaling Group
-##########################################################################################################
+  ##########################################################################################################
+  # Auto Scaling Group
+  ##########################################################################################################
   AppAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
       VPCZoneIdentifier:
-        - !Ref PrivateSubnet0
-        - !Ref PrivateSubnet1
+        - !ImportValue
+          Fn::Sub: "${AWS::Region}-MyNetworkStack-PrivateSubnet0"
+        - !ImportValue
+          Fn::Sub: "${AWS::Region}-MyNetworkStack-PrivateSubnet1"
       LaunchTemplate:
         LaunchTemplateId: !Ref WebAppLaunchTemplate
         Version: !GetAtt WebAppLaunchTemplate.LatestVersionNumber
