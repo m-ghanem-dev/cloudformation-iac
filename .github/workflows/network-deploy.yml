@@ -27,7 +27,10 @@ jobs:
             aws cloudformation deploy \
             --stack-name networkStack \
             --template-file network.yml \
-            --parameter-overrides $PARAMS
-            aws cloudformation describe-stack-events --stack-name networkStack
+            --parameter-overrides $PARAMS \
+            --debug
+        
+      - name: Describe Stack Events
+        run: aws cloudformation describe-stack-events --stack-name networkStack
 
       
