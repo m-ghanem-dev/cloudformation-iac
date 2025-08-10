@@ -24,7 +24,7 @@ Parameters:
   AmiId:
     Description: The Amazon Machine Image ID.
     Type: String
-    Default: !Ref AmiId
+    Default: ami-05a2d2d0a1020fecd
 
 Resources:
 

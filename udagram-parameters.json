@@ -1,6 +1,6 @@
 [
 	{
-		"ParameterKey": "Add you parameters here",
-		"ParameterValue": "Add you parameters here"
+		"ParameterKey": "AmiId",
+		"ParameterValue": "ami-05a2d2d0a1020fecd"
 	}
 ]
