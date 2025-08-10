@@ -29,7 +29,6 @@ jobs:
             --stack-name networkStack \
             --template-file network.yml \
             --parameter-overrides $PARAMS \
-            --debug
           DEPLOY_EXIT_CODE=$?
           if [ $DEPLOY_EXIT_CODE -ne 0 ]; then
             echo "CloudFormation deploy failed. Fetching recent stack events..."
