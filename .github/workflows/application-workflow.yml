@@ -30,10 +30,10 @@ jobs:
 
       - name: Deploy CloudFormation Stack
         run: |
-          PARAMS=$(jq -r '.[] | "\(.ParameterKey)=\(.ParameterValue)"' udagram-parameters.json | xargs)
+          PARAMS=$(jq -r '.[] | "\(.ParameterKey)=\(.ParameterValue)"' application-parameters.json | xargs)
           aws cloudformation deploy \
             --stack-name applicationStack \
-            --template-file udagram.yml \
+            --template-file application.yml \
             --parameter-overrides $PARAMS
 
   delete:
