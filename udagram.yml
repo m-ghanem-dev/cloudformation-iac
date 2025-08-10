@@ -68,6 +68,7 @@ Resources:
     Properties:
       Name: !Sub "${AWS::StackName}-TargetGroup"
       Port: 80
+      TargetType: "instance"
       Protocol: HTTP
       VpcId: 
           Fn::ImportValue: !Sub "${AWS::Region}-${NetworkStackName}-VPC"
