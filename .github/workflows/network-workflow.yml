@@ -1,4 +1,4 @@
-name: Deploy and Delete Network CloudFormation Stack
+name: Network CloudFormation Stack
 
 on:
   workflow_dispatch:

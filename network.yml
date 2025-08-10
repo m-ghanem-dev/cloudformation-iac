@@ -35,7 +35,8 @@ Mappings:
 
 Resources:
   ############################################################
-  # VPC
+  # VPC + Resources (IGW)
+  # (only one IGW per VPC - IGW is not associated with any subnet)
   ############################################################
   VPC:
     Type: AWS::EC2::VPC
@@ -54,8 +55,28 @@ Resources:
         - Key: Name
           Value: !Ref VPCName
 
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Application
+          Value: !Ref AWS::StackName
+        - Key: Network
+          Value: Public
+        - Key: Name
+          Value: !Join
+            - ""
+            - - !Ref VPCName
+              - "-IGW"
+
+  GatewayToInternet:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+
   ############################################################
-  # Public Subnet + Resources (IGW and NGW) + Route table
+  # Public Subnet + Resources (NGW) + Route table
   ############################################################
   PublicSubnet:
     Type: AWS::EC2::Subnet
@@ -83,27 +104,6 @@ Resources:
               - !Select
                 - 0
                 - !GetAZs
-
-
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-    Properties:
-      Tags:
-        - Key: Application
-          Value: !Ref AWS::StackName
-        - Key: Network
-          Value: Public
-        - Key: Name
-          Value: !Join
-            - ""
-            - - !Ref VPCName
-              - "-IGW"
-
-  GatewayToInternet:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      VpcId: !Ref VPC
-      InternetGatewayId: !Ref InternetGateway
 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
@@ -148,7 +148,6 @@ Resources:
 
   ############################################################
   # Public Subnet 1 + Resources (NGW) + Route table 
-  # (only one IGW per VPC hence this public subnet has no IGW)
   ############################################################
   PublicSubnet1:
     Type: AWS::EC2::Subnet
