@@ -105,27 +105,20 @@ Resources:
         SecurityGroupIds:
           - !Ref AppServerSG
         UserData:
-          Fn::Base64: |
-          #!/bin/bash
-          set -ex
-
-          export DEBIAN_FRONTEND=noninteractive
-          apt-get update -y
-          apt-get install -y nginx
-
-          # Remove default nginx index page
-          rm -f /var/www/html/index.nginx-debian.html
-
-          # Wait until network is up and file is downloadable
-          until wget -O /var/www/html/index.html https://udagrambucket-kouj31232.s3.eu-central-1.amazonaws.com/index.html; do
-            sleep 5
-          done
-
-          chown www-data:www-data /var/www/html/index.html
-          chmod 644 /var/www/html/index.html
-
-          systemctl restart nginx
-          systemctl enable nginx
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            set -ex
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get update -y
+            apt-get install -y nginx
+            rm -f /var/www/html/index.nginx-debian.html
+            until wget -O /var/www/html/index.html https://udagrambucket-kouj31232.s3.eu-central-1.amazonaws.com/index.html; do
+              sleep 5
+            done
+            chown www-data:www-data /var/www/html/index.html
+            chmod 644 /var/www/html/index.html
+            systemctl restart nginx
+            systemctl enable nginx
 
 
   ##########################################################################################################
