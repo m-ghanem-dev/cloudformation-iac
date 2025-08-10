@@ -14,12 +14,16 @@ Parameters:
     Type: AWS::EC2::VPC::Id
 
   PrivateSubnet0:
-    Description: First private subnet Id
     Type: AWS::EC2::Subnet::Id
+    Default: !ImportValue
+      Fn::Sub: "${AWS::Region}-MyNetworkStack-PrivateSubnet0"
+    Description: Private Subnet 0 ID imported from network stack
 
   PrivateSubnet1:
-    Description: Second private subnet Id
     Type: AWS::EC2::Subnet::Id
+    Default: !ImportValue
+      Fn::Sub: "${AWS::Region}-MyNetworkStack-PrivateSubnet1"
+    Description: Private Subnet 1 ID imported from network stack
 
   AmiId:
     Description: The Amazon Machine Image ID.
